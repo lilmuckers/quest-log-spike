@@ -22,7 +22,8 @@ jobs:
         run: npm run -s test:send
       - name: Send
         env:
-          SECRETS_JSON: ${{ toJSON(secrets) }}
+          # Named, not toJSON(secrets): GitHub holds toJSON(secrets) workflows for approval (A0 finding).
+          SECRETS_JSON: '{"QUEST_VAPID_PRIVATE_KEY": "${{ secrets.QUEST_VAPID_PRIVATE_KEY }}"}'
           PUSH_TITLE: ${{ inputs.title }}
           PUSH_BODY: ${{ inputs.body }}
           PUSH_URGENCY: ${{ inputs.urgency }}
