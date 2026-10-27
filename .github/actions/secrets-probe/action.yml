@@ -2,7 +2,7 @@ name: Secrets probe
 description: A0 spike. Receives toJSON(secrets), masks QUEST_* values and reports names only.
 inputs:
   secrets:
-    description: Pass ${{ toJSON(secrets) }}
+    description: Pass toJSON(secrets) from the workflow (the runner evaluates expressions even in descriptions)
     default: '{}'
 runs:
   using: composite
