@@ -49,19 +49,20 @@ Filled in as the spike runs. ⏳ = waiting on you (approval or a device).
 
 | Check | Result |
 |---|---|
-| D12 `toJSON(secrets)` in a workflow | ⚠️ **Held.** GitHub marks every workflow that passes `toJSON(secrets)` (the stub, `a0-probe`, `send-push`) "may be malicious" and won't run it until someone with write access approves it. ⏳ Does one approval stick for later runs? |
+| D12 `toJSON(secrets)` in a workflow | ⚠️ **Held for approval, per file version.** GitHub marks every workflow that passes `toJSON(secrets)` "may be malicious" and won't run it until someone with write access approves it. Once approved, that exact file runs freely (push and dispatch both ran). **Any edit to the file is held again** (one comment-only step added → `action_required`). So every stub re-render would need the user to approve again |
 | D12 named secrets (fallback) | ✅ Runs with no approval. `QUEST_FOO` and `QUEST_VAPID_PRIVATE_KEY` arrive in the composite action, and echoing them prints `***` |
-| D12 values masked | ✅ (named); ⏳ (`toJSON`) |
-| D12 same-repo PR | ⏳ (held for approval, PR #1) |
+| D12 values masked | ✅ both ways. `toJSON(secrets)` delivers `OTHER_BAR, QUEST_FOO, QUEST_VAPID_PRIVATE_KEY, github_token`; the action keeps the two `QUEST_*` and the echo prints `***` |
+| D12 same-repo PR | ✅ after approval (PR #1): secrets arrive, stub validates |
 | D12 fork PR | ⏳ needs a second account |
-| Stub token: checks / contents / pull-requests write | ⏳ (in `a0-probe`, held) |
-| D7 pointer + asset download from runner | ⏳ (in `a0-probe`, held) |
+| Stub token: checks / contents / pull-requests write | checks ✅ (`Quest validate` and `A0 probe check` written), pull-requests ✅ (validate comment and probe comment on PR #1), contents ⏳ (only in the job summary; the next approved `a0-probe` run prints it to the log) |
+| D7 pointer + asset download from runner | ✅ no token needed. Pointer 264–391 ms, download + sha256 check 421–624 ms, whole stub run ~14 s. A PR run's cache isn't visible to `main` (first `main` run missed `quest-core-1.0.0`), as the plan expects |
 | D13 artifact download | CORS ✅: `api.github.com` answers 302 with `Access-Control-Allow-Origin: *`, and the zip comes from `productionresultssa<N>.blob.core.windows.net`, also `*`. **CSP ❌**: the app's `connect-src` must add `https://*.blob.core.windows.net`. ⏳ confirm with `artifacts.html` in a browser |
 | Push: Android Chrome | ⏳ |
 | Push: desktop Chrome | ⏳ |
 | Push: Firefox | ⏳ |
 | Push: iOS home screen | ⏳ |
 | 404/410 on an unsubscribed device | ⏳ |
+| Stub end to end on `@main` | ✅ core 1.0.0 resolved, verified and cached; `Quest validate` check ✅ 10 files; upserted PR comment |
 | WebCrypto VAPID keys with `web-push` | ✅ offline test (`npm run test:send`): aes128gcm, TTL, urgency, JWT `aud`/`sub` |
 
 ### Bugs the spike found
