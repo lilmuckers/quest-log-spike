@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Same policy as the Quest Log Pages build, so a blocked redirect host shows up as a CSP violation. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://api.github.com; worker-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Quest artifact spike</title>
+  </head>
+  <body>
+    <main>
+      <h1>Artifact download test (D13)</h1>
+      <p class="muted">Can the app read the latest <code>quest-status</code> artifact from the browser, under the app's CSP? <a href="./">← Push spike</a></p>
+      <section>
+        <label>Token (read access to <code>lilmuckers/quest-log-spike</code>, e.g. fine-grained with <b>Actions: read</b>) <input id="token" type="password" autocomplete="off" /></label>
+        <div class="row"><button id="run">Run the test</button></div>
+      </section>
+      <section>
+        <h2>Result</h2>
+        <table id="out"><tr><td class="muted">Not run yet.</td></tr></table>
+      </section>
+    </main>
+    <script type="module" src="artifacts.js"></script>
+  </body>
+</html>

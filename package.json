@@ -1,0 +1,12 @@
+{
+  "name": "quest-log-spike",
+  "private": true,
+  "type": "module",
+  "description": "Throwaway A0 + Web Push spike for Quest Log automation.",
+  "scripts": {
+    "test:send": "node spike/send.test.mjs"
+  },
+  "dependencies": {
+    "web-push": "3.6.7"
+  }
+}

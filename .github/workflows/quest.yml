@@ -1,0 +1,16 @@
+# quest-stub: 1  (written by Quest Log — change it in Settings → Automation)
+name: Quest Log
+on:
+  pull_request: { types: [opened, synchronize, reopened, labeled] }
+  push: { branches: [main], paths: ['data/**'] }
+  workflow_dispatch:
+permissions: { contents: write, pull-requests: write, checks: write }
+concurrency: { group: quest-${{ github.ref }}, cancel-in-progress: false }
+jobs:
+  quest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: lilmuckers/quest-log-actions@main
+        with:
+          secrets: ${{ toJSON(secrets) }}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Same policy as the Quest Log Pages build (app/vite.config.ts csp()), so the spike hits the same limits. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://api.github.com; worker-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#2b2d42" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Quest Spike" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Quest push spike</title>
+  </head>
+  <body>
+    <main>
+      <h1>Quest push spike</h1>
+      <p class="muted">Throwaway test page for Quest Log Web Push. <a href="artifacts.html">Artifact download test →</a></p>
+
+      <div id="clicked" class="banner" hidden>✅ Opened from a notification click.</div>
+
+      <section>
+        <h2>1. This device</h2>
+        <table id="support"></table>
+        <p id="ios-hint" class="hint" hidden>On iPhone or iPad: tap Share → <b>Add to Home Screen</b>, then open <b>Quest Spike</b> from the home screen and come back to this step. Push only works there.</p>
+      </section>
+
+      <section>
+        <h2>2. Subscribe</h2>
+        <label>Device label <input id="label" maxlength="40" /></label>
+        <div class="row">
+          <button id="subscribe">Allow notifications and subscribe</button>
+          <button id="local" class="secondary">Show a local test notification</button>
+          <button id="unsubscribe" class="secondary">Unsubscribe</button>
+        </div>
+        <p id="sub-status" class="muted"></p>
+      </section>
+
+      <section>
+        <h2>3. Register the device</h2>
+        <p class="muted">Adds this subscription to <code>spike/devices.json</code> in the spike repo. Paste a fine-grained token with <b>Contents: read and write</b> on <code>lilmuckers/quest-log-spike</code> only. It stays in this tab.</p>
+        <label>Token <input id="token" type="password" autocomplete="off" /></label>
+        <div class="row">
+          <button id="save">Save device to repo</button>
+          <button id="copy" class="secondary">Copy device JSON</button>
+        </div>
+        <p id="save-status" class="muted"></p>
+        <details><summary>Device JSON</summary><pre id="device-json">Not subscribed yet.</pre></details>
+      </section>
+
+      <section>
+        <h2>4. Received</h2>
+        <p class="muted">Pushes this device's service worker has handled, newest first. Delay is from the runner's send to arrival.</p>
+        <div class="row"><button id="refresh" class="secondary">Refresh</button></div>
+        <table id="log"></table>
+      </section>
+
+      <section>
+        <h2>VAPID key check (for G4)</h2>
+        <p class="muted">Generates a P-256 key pair with WebCrypto the way the app will, and checks the export formats web-push needs.</p>
+        <p id="vapid-check" class="muted">Checking…</p>
+      </section>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

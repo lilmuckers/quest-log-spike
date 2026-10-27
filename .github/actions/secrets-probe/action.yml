@@ -1,0 +1,13 @@
+name: Secrets probe
+description: A0 spike. Receives toJSON(secrets), masks QUEST_* values and reports names only.
+inputs:
+  secrets:
+    description: Pass ${{ toJSON(secrets) }}
+    default: '{}'
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        SECRETS_JSON: ${{ inputs.secrets }}
+      run: node "$GITHUB_ACTION_PATH/../../../spike/probe-secrets.mjs"

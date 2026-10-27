@@ -1,0 +1,65 @@
+# A0 spike: secrets passing (D12), the stub's token permissions, core download from a runner (D7)
+# and a quest-status artifact for the browser download test (D13). Results go to the job summary.
+name: A0 probe
+on:
+  pull_request:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: write, pull-requests: write, checks: write, actions: read }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Secrets via toJSON(secrets)
+        uses: ./.github/actions/secrets-probe
+        env:
+          SPIKE_FORK: ${{ github.event.pull_request.head.repo.fork || false }}
+        with:
+          secrets: ${{ toJSON(secrets) }}
+
+      - name: Token permissions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          row() { printf '| %s | %s |\n' "$1" "$2" >> "$GITHUB_STEP_SUMMARY"; }
+          try() { if out=$("${@:2}" 2>&1); then row "$1" "✅"; else row "$1" "❌ $(echo "$out" | tail -1 | tr '|' '/')"; fi; }
+          printf '### Token permissions\n\n| Write | Result |\n|---|---|\n' >> "$GITHUB_STEP_SUMMARY"
+          try "checks: create a check run" gh api -X POST "repos/$GITHUB_REPOSITORY/check-runs" -f name="A0 probe check" -f head_sha="$SHA" -f status=completed -f conclusion=neutral -f 'output[title]=A0 probe' -f 'output[summary]=Written by the A0 spike.'
+          ref="spike-probe-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          try "contents: create a tag ref" gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$ref" -f sha="$SHA"
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/tags/$ref" >/dev/null 2>&1 || true
+          if [ -n "$PR" ]; then
+            try "pull-requests: comment on the PR" gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -f body="A0 probe: the stub token can comment (run $GITHUB_RUN_ID)."
+          else
+            row "pull-requests: comment on the PR" "– (not a PR run)"
+          fi
+          echo >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Core download from the runner, no token (D7)
+        run: |
+          t() { curl -fsSL -o "$2" -w '%{time_total}s, %{size_download} bytes, HTTP %{http_code}' "$1" || echo "failed"; }
+          p=$(t https://tasks.patrick-mckinley.com/core/v1.json pointer.json)
+          url=$(jq -r '.assets["quest.py"].url' pointer.json)
+          want=$(jq -r '.assets["quest.py"].sha256' pointer.json)
+          q=$(t "$url" quest.py)
+          got=$(sha256sum quest.py | cut -d' ' -f1)
+          {
+            printf '### Core download (D7)\n\n| Fetch | Result |\n|---|---|\n'
+            printf '| Pages pointer `core/v1.json` (v%s) | %s |\n' "$(jq -r .version pointer.json)" "$p"
+            printf '| Release asset `quest.py` | %s |\n' "$q"
+            printf '| sha256 matches pointer | %s |\n\n' "$([ "$got" = "$want" ] && echo ✅ || echo ❌)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Write quest-status
+        run: |
+          mkdir -p quest-status
+          jq -n --arg at "$(date -u +%FT%TZ)" --arg ev "$GITHUB_EVENT_NAME" \
+            '{version:1, ranAt:$at, event:$ev, core:{version:"spike"}, modules:{probe:{ran:true}}, sent:{}, expiredDevices:[]}' > quest-status/status.json
+      - uses: actions/upload-artifact@v4
+        with: { name: quest-status, path: quest-status/, retention-days: 7 }
+      - name: Artifact note
+        run: printf '### quest-status (D13)\n\nUploaded. Test the browser download at https://lilmuckers.github.io/quest-log-spike/artifacts.html\n' >> "$GITHUB_STEP_SUMMARY"

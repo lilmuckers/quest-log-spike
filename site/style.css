@@ -1,0 +1,21 @@
+:root { color-scheme: light dark; --bg: #f7f7fb; --fg: #1d1e2c; --muted: #5c5f73; --card: #fff; --line: #d9dae5; --accent: #3a56d4; --ok: #157a3c; --bad: #b3261e; }
+@media (prefers-color-scheme: dark) { :root { --bg: #15161f; --fg: #ececf4; --muted: #a2a4b8; --card: #1f2130; --line: #33364a; --accent: #8fa2ff; --ok: #5fd08a; --bad: #ff8a80; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, sans-serif; }
+main { max-width: 640px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px max(32px, env(safe-area-inset-bottom)); }
+h1 { font-size: 1.5rem; margin: 0.5rem 0 0.25rem; }
+h2 { font-size: 1.05rem; margin: 0 0 0.5rem; }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; }
+.muted { color: var(--muted); font-size: 0.9rem; }
+.hint { background: color-mix(in srgb, var(--accent) 12%, transparent); padding: 8px 12px; border-radius: 8px; }
+.banner { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); padding: 10px 14px; border-radius: 8px; font-weight: 600; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+label { display: block; margin: 8px 0; font-size: 0.9rem; }
+input { display: block; width: 100%; margin-top: 4px; padding: 10px; font-size: 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); }
+button { font: inherit; font-size: 0.95rem; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+button.secondary { background: transparent; color: var(--accent); }
+button:disabled { opacity: 0.5; cursor: default; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+td, th { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: anywhere; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.8rem; background: var(--bg); padding: 8px; border-radius: 8px; }
+.ok { color: var(--ok); } .bad { color: var(--bad); }
