@@ -63,3 +63,6 @@ jobs:
         with: { name: quest-status, path: quest-status/, retention-days: 7 }
       - name: Artifact note
         run: printf '### quest-status (D13)\n\nUploaded. Test the browser download at https://lilmuckers.github.io/quest-log-spike/artifacts.html\n' >> "$GITHUB_STEP_SUMMARY"
+      - name: Print the summary to the log
+        if: always()
+        run: cat "$GITHUB_STEP_SUMMARY"
