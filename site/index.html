@@ -16,7 +16,7 @@
   <body>
     <main>
       <h1>Quest push spike</h1>
-      <p class="muted">Throwaway test page for Quest Log Web Push. <a href="artifacts.html">Artifact download test →</a></p>
+      <p class="muted">Throwaway test page for Quest Log Web Push. Artifact download test: <a href="artifacts.html">app CSP</a> · <a href="artifacts-allow.html">proposed CSP</a></p>
 
       <div id="clicked" class="banner" hidden>✅ Opened from a notification click.</div>
 
@@ -52,7 +52,8 @@
       <section>
         <h2>4. Received</h2>
         <p class="muted">Pushes this device's service worker has handled, newest first. Delay is from the runner's send to arrival.</p>
-        <div class="row"><button id="refresh" class="secondary">Refresh</button></div>
+        <div class="row"><button id="refresh" class="secondary">Refresh</button><button id="sw-update" class="secondary">Update service worker</button></div>
+        <p id="sw-version" class="muted"></p>
         <table id="log"></table>
       </section>
 
@@ -62,6 +63,7 @@
         <p id="vapid-check" class="muted">Checking…</p>
       </section>
     </main>
+    <script src="log-store.js"></script>
     <script type="module" src="app.js"></script>
   </body>
 </html>

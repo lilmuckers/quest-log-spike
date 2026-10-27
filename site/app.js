@@ -163,12 +163,26 @@ async function copy() {
   $('save-status').textContent = 'Copied.';
 }
 
+/** Arrivals from IndexedDB (sw v2+) and Cache Storage (sw v1), de-duplicated by time. */
 async function showLog() {
-  if (!('caches' in window)) return;
-  const cache = await caches.open('spike-log');
-  const keys = await cache.keys();
-  const entries = await Promise.all(keys.map(async (k) => (await cache.match(k)).json()));
-  entries.sort((a, b) => b.at.localeCompare(a.at));
+  const byAt = new Map();
+  const notes = [];
+  try {
+    for (const e of await self.spikeLog.all()) byAt.set(e.at + (e.title ?? ''), e);
+  } catch (e) {
+    notes.push(`IndexedDB: ${e.message}`);
+  }
+  try {
+    const cache = await caches.open('spike-log');
+    for (const k of await cache.keys()) {
+      const e = await (await cache.match(k)).json();
+      if (!byAt.has(e.at + (e.title ?? ''))) byAt.set(e.at + (e.title ?? ''), e);
+    }
+  } catch (e) {
+    notes.push(`Cache: ${e.message}`);
+  }
+  const entries = [...byAt.values()].sort((a, b) => b.at.localeCompare(a.at));
+  if (notes.length) entries.unshift({ at: new Date().toISOString(), title: `read error: ${notes.join('; ')}`, delay: null });
   const head = tr('Arrived', 'Title', 'Delay');
   head.classList.add('muted');
   $('log').replaceChildren(head, ...(entries.length ? entries.slice(0, 20).map((e) => tr(new Date(e.at).toLocaleString(), e.title ?? '–', e.delay == null ? '–' : `${e.delay}s`)) : [tr('Nothing yet.', '', '')]));
@@ -199,6 +213,12 @@ $('local').addEventListener('click', localTest);
 $('save').addEventListener('click', save);
 $('copy').addEventListener('click', copy);
 $('refresh').addEventListener('click', showLog);
+$('sw-update').addEventListener('click', async () => {
+  const reg = await navigator.serviceWorker?.getRegistration();
+  if (!reg) return void ($('sw-version').textContent = 'No service worker registered yet.');
+  await reg.update();
+  location.reload();
+});
 $('clicked').hidden = new URLSearchParams(location.search).get('from') !== 'notification';
 
 const state = support();
@@ -207,4 +227,11 @@ if (hasPush) registration().then(showSubscription, (e) => ($('sub-status').textC
 else showSubscription();
 showLog();
 vapidCheck();
-navigator.serviceWorker?.addEventListener('message', (e) => e.data === 'pushed' && showLog());
+navigator.serviceWorker?.addEventListener('message', (e) => {
+  if (e.data === 'pushed') showLog();
+  if (e.data?.version) $('sw-version').textContent = `Service worker v${e.data.version} (page expects v2).`;
+});
+navigator.serviceWorker?.ready.then((reg) => {
+  $('sw-version').textContent = 'Service worker v1 (no version reply). Tap "Update service worker".';
+  reg.active?.postMessage('version');
+});

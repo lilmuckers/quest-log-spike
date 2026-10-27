@@ -1,7 +1,12 @@
-// Spike service worker: show every push (iOS revokes the subscription if a push shows nothing),
-// log its arrival delay for the page, and open the page on click.
+// Spike service worker: log every push first (iOS may stop the worker once the notification is
+// shown), then show it (iOS revokes the subscription if a push shows nothing), and open the
+// page on click.
+const VERSION = '2';
+importScripts('log-store.js');
+
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+self.addEventListener('message', (event) => event.data === 'version' && event.source?.postMessage({ version: VERSION }));
 
 self.addEventListener('push', (event) => {
   let data = {};
@@ -12,16 +17,22 @@ self.addEventListener('push', (event) => {
   }
   const sent = data.sentAt ? Date.parse(data.sentAt) : NaN;
   const delay = Number.isNaN(sent) ? null : Math.round((Date.now() - sent) / 1000);
+  const entry = { at: new Date().toISOString(), title: data.title, delay, sw: VERSION };
   event.waitUntil(
     (async () => {
+      const errors = [];
+      await self.spikeLog.add(entry).catch((e) => errors.push(`idb: ${e.message}`));
+      await caches
+        .open('spike-log')
+        .then((c) => c.put(`log/${Date.now()}`, new Response(JSON.stringify(entry))))
+        .catch((e) => errors.push(`cache: ${e.message}`));
+      if (errors.length) await self.spikeLog.add({ ...entry, title: `log error: ${errors.join('; ')}` }).catch(() => {});
       await self.registration.showNotification(data.title || 'Quest Log spike', {
         body: data.body || '',
         tag: data.tag,
         icon: 'icon-192.png',
         data: { url: data.url || './' },
       });
-      const cache = await caches.open('spike-log');
-      await cache.put(`log/${Date.now()}`, new Response(JSON.stringify({ at: new Date().toISOString(), title: data.title, delay })));
       for (const client of await self.clients.matchAll({ type: 'window' })) client.postMessage('pushed');
     })(),
   );
