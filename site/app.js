@@ -163,10 +163,29 @@ async function copy() {
   $('save-status').textContent = 'Copied.';
 }
 
-/** Arrivals from IndexedDB (sw v2+) and Cache Storage (sw v1), de-duplicated by time. */
+/** Asks the service worker for its log (sw v3+); null if it doesn't answer. */
+async function logFromWorker() {
+  const sw = navigator.serviceWorker?.controller ?? (await navigator.serviceWorker?.getRegistration())?.active;
+  if (!sw) return null;
+  return new Promise((resolve) => {
+    const onMessage = (e) => {
+      if (!e.data?.log) return;
+      navigator.serviceWorker.removeEventListener('message', onMessage);
+      resolve(e.data);
+    };
+    navigator.serviceWorker.addEventListener('message', onMessage);
+    sw.postMessage('log');
+    setTimeout(() => (navigator.serviceWorker.removeEventListener('message', onMessage), resolve(null)), 1500);
+  });
+}
+
+/** Arrivals from the worker (sw v3+), this page's IndexedDB view and Cache Storage (sw v1), de-duplicated. */
 async function showLog() {
   const byAt = new Map();
   const notes = [];
+  const fromWorker = await logFromWorker();
+  if (fromWorker?.error) notes.push(`worker: ${fromWorker.error}`);
+  for (const e of fromWorker?.log ?? []) byAt.set(e.at + (e.title ?? ''), e);
   try {
     for (const e of await self.spikeLog.all()) byAt.set(e.at + (e.title ?? ''), e);
   } catch (e) {
@@ -229,8 +248,9 @@ showLog();
 vapidCheck();
 navigator.serviceWorker?.addEventListener('message', (e) => {
   if (e.data === 'pushed') showLog();
-  if (e.data?.version) $('sw-version').textContent = `Service worker v${e.data.version} (page expects v2).`;
+  if (e.data?.version) $('sw-version').textContent = `Service worker v${e.data.version} (page expects v3).`;
 });
+document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && showLog());
 navigator.serviceWorker?.ready.then((reg) => {
   $('sw-version').textContent = 'Service worker v1 (no version reply). Tap "Update service worker".';
   reg.active?.postMessage('version');

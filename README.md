@@ -65,6 +65,14 @@ Filled in as the spike runs. ⏳ = waiting on you (approval or a device).
 | Stub end to end on `@main` | ✅ core 1.0.0 resolved, verified and cached; `Quest validate` check ✅ 10 files; upserted PR comment |
 | WebCrypto VAPID keys with `web-push` | ✅ offline test (`npm run test:send`): aes128gcm, TTL, urgency, JWT `aud`/`sub` |
 
+### Notes for G4 (app push)
+
+- iOS home-screen app: a push the service worker logs to IndexedDB isn't visible to the page
+  that's already open, only after the app restarts. The page now asks the worker for the log
+  (`postMessage('log')`) and refreshes when it comes back to the foreground. The app should do
+  the same for anything the worker records (for example arrivals or subscription changes).
+- Log before `showNotification`: iOS may stop the worker once the notification is up.
+
 ### Bugs the spike found
 
 - The stub's `concurrency: { group: quest-${{ github.ref }}, … }` is invalid YAML: the `}}` ends

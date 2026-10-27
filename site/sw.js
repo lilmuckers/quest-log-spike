@@ -1,12 +1,23 @@
 // Spike service worker: log every push first (iOS may stop the worker once the notification is
 // shown), then show it (iOS revokes the subscription if a push shows nothing), and open the
 // page on click.
-const VERSION = '2';
+const VERSION = '3';
 importScripts('log-store.js');
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
-self.addEventListener('message', (event) => event.data === 'version' && event.source?.postMessage({ version: VERSION }));
+self.addEventListener('message', (event) => {
+  if (event.data === 'version') event.source?.postMessage({ version: VERSION });
+  // On iOS the open page doesn't see this worker's IndexedDB writes until it restarts, so the
+  // page asks the worker, which reads its own store.
+  if (event.data === 'log')
+    event.waitUntil(
+      self.spikeLog.all().then(
+        (log) => event.source?.postMessage({ log }),
+        (e) => event.source?.postMessage({ log: [], error: e.message }),
+      ),
+    );
+});
 
 self.addEventListener('push', (event) => {
   let data = {};
