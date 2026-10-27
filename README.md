@@ -45,17 +45,30 @@ On each of **Android Chrome**, **desktop Chrome**, **Firefox** and **iOS Safari*
 
 ## Results
 
+Filled in as the spike runs. ⏳ = waiting on you (approval or a device).
+
 | Check | Result |
 |---|---|
-| D12 secrets reach a composite action | |
-| D12 values masked | |
-| D12 same-repo PR | |
-| D12 fork PR | |
-| Stub token: checks / contents / pull-requests write | |
-| D7 pointer + asset download from runner | |
-| D13 artifact download from browser | |
-| Push: Android Chrome | |
-| Push: desktop Chrome | |
-| Push: Firefox | |
-| Push: iOS home screen | |
-| 404/410 on an unsubscribed device | |
+| D12 `toJSON(secrets)` in a workflow | ⚠️ **Held.** GitHub marks every workflow that passes `toJSON(secrets)` (the stub, `a0-probe`, `send-push`) "may be malicious" and won't run it until someone with write access approves it. ⏳ Does one approval stick for later runs? |
+| D12 named secrets (fallback) | ✅ Runs with no approval. `QUEST_FOO` and `QUEST_VAPID_PRIVATE_KEY` arrive in the composite action, and echoing them prints `***` |
+| D12 values masked | ✅ (named); ⏳ (`toJSON`) |
+| D12 same-repo PR | ⏳ (held for approval, PR #1) |
+| D12 fork PR | ⏳ needs a second account |
+| Stub token: checks / contents / pull-requests write | ⏳ (in `a0-probe`, held) |
+| D7 pointer + asset download from runner | ⏳ (in `a0-probe`, held) |
+| D13 artifact download | CORS ✅: `api.github.com` answers 302 with `Access-Control-Allow-Origin: *`, and the zip comes from `productionresultssa<N>.blob.core.windows.net`, also `*`. **CSP ❌**: the app's `connect-src` must add `https://*.blob.core.windows.net`. ⏳ confirm with `artifacts.html` in a browser |
+| Push: Android Chrome | ⏳ |
+| Push: desktop Chrome | ⏳ |
+| Push: Firefox | ⏳ |
+| Push: iOS home screen | ⏳ |
+| 404/410 on an unsubscribed device | ⏳ |
+| WebCrypto VAPID keys with `web-push` | ✅ offline test (`npm run test:send`): aes128gcm, TTL, urgency, JWT `aud`/`sub` |
+
+### Bugs the spike found
+
+- The stub's `concurrency: { group: quest-${{ github.ref }}, … }` is invalid YAML: the `}}` ends
+  the flow mapping. Block style works. (Fixed in the plan, here, and in
+  lilmuckers/quest-log-actions#11.)
+- An action's input **description** containing `${{ toJSON(secrets) }}` is evaluated by the runner,
+  and the action fails to load (`Unrecognized named-value: 'secrets'`). The real action had this
+  on `main`. (lilmuckers/quest-log-actions#11.)
