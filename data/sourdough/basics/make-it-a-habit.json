@@ -1,7 +1,7 @@
 {
   "$schema": "https://tasks.patrick-mckinley.com/schema/level.schema.json",
   "id": "make-it-a-habit",
-  "name": "Make it a habit",
+  "name": "Make it a habit (spike edit)",
   "deliverable": "A bake every week for a month with no planning",
   "timeboxDays": 28,
   "startedAt": "2025-09-15T20:15:00Z",
