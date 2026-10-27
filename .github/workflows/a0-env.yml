@@ -1,0 +1,15 @@
+# A0: named secrets as step env on a composite action (no JSON escaping).
+name: A0 env secrets
+on: { push: { branches: [main] }, workflow_dispatch: }
+permissions: { contents: read }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/env-probe
+        env:
+          QUEST_FOO: ${{ secrets.QUEST_FOO }}
+          QUEST_VAPID_PRIVATE_KEY: ${{ secrets.QUEST_VAPID_PRIVATE_KEY }}
+          QUEST_NOT_SET: ${{ secrets.QUEST_NOT_SET }}

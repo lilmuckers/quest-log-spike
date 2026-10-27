@@ -1,0 +1,11 @@
+name: Env probe
+description: A0 spike. Reads QUEST_* from the step env the caller sets, the way the named-secrets stub passes them.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        for n in QUEST_FOO QUEST_VAPID_PRIVATE_KEY QUEST_NOT_SET OTHER_BAR; do
+          v="${!n-}"
+          if [ -n "$v" ]; then echo "::add-mask::$v"; echo "$n arrived (${#v} chars): $v"; else echo "$n: empty or unset"; fi
+        done
