@@ -56,11 +56,11 @@ Filled in as the spike runs. ⏳ = waiting on you (approval or a device).
 | D12 fork PR | ⏳ needs a second account |
 | Stub token: checks / contents / pull-requests write | checks ✅ (`Quest validate` and `A0 probe check` written), pull-requests ✅ (validate comment and probe comment on PR #1), contents ⏳ (only in the job summary; the next approved `a0-probe` run prints it to the log) |
 | D7 pointer + asset download from runner | ✅ no token needed. Pointer 264–391 ms, download + sha256 check 421–624 ms, whole stub run ~14 s. A PR run's cache isn't visible to `main` (first `main` run missed `quest-core-1.0.0`), as the plan expects |
-| D13 artifact download | CORS ✅: `api.github.com` answers 302 with `Access-Control-Allow-Origin: *`, and the zip comes from `productionresultssa<N>.blob.core.windows.net`, also `*`. **CSP ❌**: the app's `connect-src` must add `https://*.blob.core.windows.net`. ⏳ confirm with `artifacts.html` in a browser |
+| D13 artifact download | CORS ✅: `api.github.com` answers 302 with `Access-Control-Allow-Origin: *`, and the zip comes from `productionresultssa<N>.blob.core.windows.net`, also `*`. **CSP ❌ confirmed in a browser**: under the app's policy the redirect is blocked (`connect-src` violation; `fetch` throws `TypeError`). ⏳ `artifacts-allow.html` adds `https://*.blob.core.windows.net` to check that's enough |
 | Push: Android Chrome | ⏳ |
 | Push: desktop Chrome | ⏳ |
 | Push: Firefox | ⏳ |
-| Push: iOS home screen | ⏳ |
+| Push: iOS home screen | ✅ received. `web.push.apple.com` answered 201 in 135 ms (Send push, 2026-10-27) |
 | 404/410 on an unsubscribed device | ⏳ |
 | Stub end to end on `@main` | ✅ core 1.0.0 resolved, verified and cached; `Quest validate` check ✅ 10 files; upserted PR comment |
 | WebCrypto VAPID keys with `web-push` | ✅ offline test (`npm run test:send`): aes128gcm, TTL, urgency, JWT `aud`/`sub` |
