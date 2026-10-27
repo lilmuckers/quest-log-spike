@@ -19,3 +19,10 @@ jobs:
               "QUEST_FOO": "${{ secrets.QUEST_FOO }}",
               "QUEST_VAPID_PRIVATE_KEY": "${{ secrets.QUEST_VAPID_PRIVATE_KEY }}"
             }
+      - name: Write quest-status
+        run: |
+          mkdir -p quest-status
+          jq -n --arg at "$(date -u +%FT%TZ)" --arg ev "$GITHUB_EVENT_NAME" \
+            '{version:1, ranAt:$at, event:$ev, core:{version:"spike"}, modules:{probe:{ran:true}}, sent:{}, expiredDevices:[]}' > quest-status/status.json
+      - uses: actions/upload-artifact@v4
+        with: { name: quest-status, path: quest-status/, retention-days: 7 }
