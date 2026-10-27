@@ -1,3 +1,22 @@
 {
-  "devices": []
+  "devices": [
+    {
+      "id": "spike-d81e7f50",
+      "label": "iOS Safari (home screen)",
+      "addedAt": "2026-10-27T22:21:23.827Z",
+      "timezone": "Europe/London",
+      "events": {
+        "timebox": true,
+        "review": "fri",
+        "warpZone": true
+      },
+      "subscription": {
+        "endpoint": "https://web.push.apple.com/QOL5N7VRR9Q_PT49JodLi0BKsv5ibePFEU9O1t7l5pY1_oVVCXazr3siEgz_EA9ZwfnPgm9wJjM1BK_obDWGmDKZeZR8kcGhNe7sLkQzluFPukCGdJ1LtmcXcxKHuTDjbL5RIaPHG6hKjXCgdSAVyJd2TruPnmm5FDKXzspiUiw",
+        "keys": {
+          "p256dh": "BD59COSVdQkhvFVfKqo6hTTLZcEn3acpZEfeEnYE72Gs5j5rJC1opqMhqKl88OkjgVYU3rsaUaA--WwDwUq621k",
+          "auth": "8TRSmhjUVfgRd0V_TTvFDw"
+        }
+      }
+    }
+  ]
 }
