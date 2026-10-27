@@ -1,0 +1,21 @@
+# A0 fallback for D12: the stub names each QUEST_* secret instead of passing toJSON(secrets).
+# Compared with a0-probe.yml to see which one GitHub's "may be malicious" check holds for approval.
+name: A0 named secrets
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Named secrets into the composite action
+        uses: ./.github/actions/secrets-probe
+        with:
+          secrets: |
+            {
+              "QUEST_FOO": "${{ secrets.QUEST_FOO }}",
+              "QUEST_VAPID_PRIVATE_KEY": "${{ secrets.QUEST_VAPID_PRIVATE_KEY }}"
+            }
