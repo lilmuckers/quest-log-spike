@@ -12,6 +12,7 @@
     <main>
       <h1>Artifact download test (D13)</h1>
       <p class="muted">Can the app read the latest <code>quest-status</code> artifact from the browser, under the app's CSP? <a href="./">← Push spike</a></p>
+      <p class="muted">This page uses the app's current CSP. <a href="artifacts-allow.html">Same test with <code>https://*.blob.core.windows.net</code> added to <code>connect-src</code> →</a></p>
       <section>
         <label>Token (read access to <code>lilmuckers/quest-log-spike</code>, e.g. fine-grained with <b>Actions: read</b>) <input id="token" type="password" autocomplete="off" /></label>
         <div class="row"><button id="run">Run the test</button></div>
