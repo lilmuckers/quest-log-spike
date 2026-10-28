@@ -13,6 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: lilmuckers/quest-log-actions@main
+      - uses: lilmuckers/quest-log-actions@claude/a2-notify
         env:
           QUEST_VAPID_PRIVATE_KEY: ${{ secrets.QUEST_VAPID_PRIVATE_KEY }}

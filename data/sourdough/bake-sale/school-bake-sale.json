@@ -4,29 +4,25 @@
   "name": "School bake sale",
   "deliverable": "Six loaves on the table and sold out",
   "timeboxDays": 7,
-  "startedAt": "2025-10-25T12:36:00Z",
-  "clearedAt": "2025-10-31T07:42:00Z",
+  "startedAt": "2026-10-22T20:00:00Z",
   "successCriteria": [
     {
       "id": "six-loaves-baked",
       "mvp": true,
       "text": "Six loaves baked",
-      "done": true,
-      "doneAt": "2025-10-30T07:46:00Z"
+      "done": false
     },
     {
       "id": "sold-out",
       "mvp": true,
       "text": "Sold out",
-      "done": true,
-      "doneAt": "2025-10-31T07:42:00Z"
+      "done": false
     },
     {
       "id": "someone-asked-for-the-recipe",
       "mvp": false,
       "text": "Someone asked for the recipe",
-      "done": true,
-      "doneAt": "2025-10-30T08:16:00Z"
+      "done": false
     }
   ],
   "items": [
