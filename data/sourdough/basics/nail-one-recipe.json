@@ -92,7 +92,7 @@
       "id": "loaf-4",
       "title": "Loaf 4",
       "type": "task",
-      "status": "bogus"
+      "status": "todo"
     }
   ],
   "stats": {
@@ -101,5 +101,6 @@
       "loaf-3": 5
     }
   },
-  "budget": 30
+  "budget": 30,
+  "deliverable": "Three good loaves in a row from one recipe"
 }
