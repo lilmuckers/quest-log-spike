@@ -58,10 +58,10 @@ Filled in as the spike runs. ⏳ = waiting on you (approval or a device).
 | D7 pointer + asset download from runner | ✅ no token needed. Pointer 264–391 ms, download + sha256 check 421–624 ms, whole stub run ~14 s. A PR run's cache isn't visible to `main` (first `main` run missed `quest-core-1.0.0`), as the plan expects |
 | D13 artifact download | CORS ✅: `api.github.com` answers 302 with `Access-Control-Allow-Origin: *`, and the zip comes from `productionresultssa<N>.blob.core.windows.net`, also `*`. **CSP ❌ confirmed in a browser**: under the app's policy the redirect is blocked (`connect-src` violation; `fetch` throws `TypeError`). ⏳ `artifacts-allow.html` adds `https://*.blob.core.windows.net` to check that's enough |
 | Push: Android Chrome | ⏳ |
-| Push: desktop Chrome | ⏳ |
+| Push: desktop Chrome (macOS) | ✅ received, page open and tab closed; click opens the page. `fcm.googleapis.com` answered 201 in 79 ms (2026-10-28) |
 | Push: Firefox | ⏳ |
 | Push: iOS home screen | ✅ received. `web.push.apple.com` answered 201 in 135 ms (Send push, 2026-10-27). Open app's Received list updates live, no Refresh (SW v4, 2026-10-28) |
-| 404/410 on an unsubscribed device | ⏳ |
+| 404/410 on an unsubscribed device | ✅ after Unsubscribe in desktop Chrome: FCM 410 in 82 ms, `expiredDevices: ["spike-fc3347ca"]` in `quest-status`; the iPhone in the same run still got 201 |
 | Stub end to end on `@main` | ✅ core 1.0.0 resolved, verified and cached; `Quest validate` check ✅ 10 files; upserted PR comment |
 | WebCrypto VAPID keys with `web-push` | ✅ offline test (`npm run test:send`): aes128gcm, TTL, urgency, JWT `aud`/`sub` |
 
