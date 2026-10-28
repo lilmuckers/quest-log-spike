@@ -17,6 +17,24 @@
           "auth": "8TRSmhjUVfgRd0V_TTvFDw"
         }
       }
+    },
+    {
+      "id": "spike-fc3347ca",
+      "label": "macOS Chrome",
+      "addedAt": "2026-10-28T13:07:44.060Z",
+      "timezone": "Europe/London",
+      "events": {
+        "timebox": true,
+        "review": "fri",
+        "warpZone": true
+      },
+      "subscription": {
+        "endpoint": "https://fcm.googleapis.com/fcm/send/eguKjg1zL78:APA91bHKd3vhZi1dGW3X86NEhRisMHmhmFyHiBeGmc6PLSgNAs9vfxw_HDn50BJ--nYdlvN-XQXsEICDqE7Mwso6Ycre8loc-eguz3k9znu2DVdTEqKiQeUN60ejcZ48Wl0CW0lBZrxE",
+        "keys": {
+          "p256dh": "BKK1XxTgMHKy1zmxxf0p-TvHXvr99TPtNMHbCzA4rlSGPbfyC4idgEW-1w33yu4MM5EAEU0tYO7tRUrO0tV6U_k",
+          "auth": "H-QxBu7qcI9zu32AwScnww"
+        }
+      }
     }
   ]
 }
