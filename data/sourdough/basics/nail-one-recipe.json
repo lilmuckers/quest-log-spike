@@ -2,7 +2,6 @@
   "$schema": "https://tasks.patrick-mckinley.com/schema/level.schema.json",
   "id": "nail-one-recipe",
   "name": "Nail one recipe",
-  "deliverable": "Three good loaves in a row from one recipe",
   "timeboxDays": 21,
   "startedAt": "2025-08-23T16:36:00Z",
   "clearedAt": "2025-09-16T08:17:00Z",
@@ -88,6 +87,12 @@
       "type": "stretch",
       "status": "dropped",
       "budget": 8
+    },
+    {
+      "id": "loaf-4",
+      "title": "Loaf 4",
+      "type": "task",
+      "status": "bogus"
     }
   ],
   "stats": {
