@@ -60,7 +60,7 @@ Filled in as the spike runs. ⏳ = waiting on you (approval or a device).
 | Push: Android Chrome | ⏳ |
 | Push: desktop Chrome | ⏳ |
 | Push: Firefox | ⏳ |
-| Push: iOS home screen | ✅ received. `web.push.apple.com` answered 201 in 135 ms (Send push, 2026-10-27) |
+| Push: iOS home screen | ✅ received. `web.push.apple.com` answered 201 in 135 ms (Send push, 2026-10-27). Open app's Received list updates live, no Refresh (SW v4, 2026-10-28) |
 | 404/410 on an unsubscribed device | ⏳ |
 | Stub end to end on `@main` | ✅ core 1.0.0 resolved, verified and cached; `Quest validate` check ✅ 10 files; upserted PR comment |
 | WebCrypto VAPID keys with `web-push` | ✅ offline test (`npm run test:send`): aes128gcm, TTL, urgency, JWT `aud`/`sub` |
@@ -72,6 +72,9 @@ Filled in as the spike runs. ⏳ = waiting on you (approval or a device).
   (`postMessage('log')`) and refreshes when it comes back to the foreground. The app should do
   the same for anything the worker records (for example arrivals or subscription changes).
 - Log before `showNotification`: iOS may stop the worker once the notification is up.
+- To update an open page live, the worker must reach it with `clients.matchAll({ includeUncontrolled: true })`
+  and a `BroadcastChannel`: iOS doesn't always count the open app as controlled. Confirmed on
+  iOS with SW v4.
 
 ### Bugs the spike found
 
