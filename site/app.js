@@ -179,9 +179,27 @@ async function logFromWorker() {
   });
 }
 
+const seen = new Map();
+
+function renderLog() {
+  const entries = [...seen.values()].sort((a, b) => b.at.localeCompare(a.at));
+  const head = tr('Arrived', 'Title', 'Delay');
+  head.classList.add('muted');
+  $('log').replaceChildren(head, ...(entries.length ? entries.slice(0, 20).map((e) => tr(new Date(e.at).toLocaleString(), e.title ?? '–', e.delay == null ? '–' : `${e.delay}s`)) : [tr('Nothing yet.', '', '')]));
+}
+
+/** Adds one arrival sent live by the worker. */
+function addArrival(entry) {
+  const key = entry.at + (entry.title ?? '');
+  if (seen.has(key)) return;
+  seen.set(key, entry);
+  renderLog();
+}
+
 /** Arrivals from the worker (sw v3+), this page's IndexedDB view and Cache Storage (sw v1), de-duplicated. */
 async function showLog() {
-  const byAt = new Map();
+  const byAt = seen;
+  byAt.delete('read-error');
   const notes = [];
   const fromWorker = await logFromWorker();
   if (fromWorker?.error) notes.push(`worker: ${fromWorker.error}`);
@@ -200,11 +218,8 @@ async function showLog() {
   } catch (e) {
     notes.push(`Cache: ${e.message}`);
   }
-  const entries = [...byAt.values()].sort((a, b) => b.at.localeCompare(a.at));
-  if (notes.length) entries.unshift({ at: new Date().toISOString(), title: `read error: ${notes.join('; ')}`, delay: null });
-  const head = tr('Arrived', 'Title', 'Delay');
-  head.classList.add('muted');
-  $('log').replaceChildren(head, ...(entries.length ? entries.slice(0, 20).map((e) => tr(new Date(e.at).toLocaleString(), e.title ?? '–', e.delay == null ? '–' : `${e.delay}s`)) : [tr('Nothing yet.', '', '')]));
+  if (notes.length) byAt.set('read-error', { at: new Date().toISOString(), title: `read error: ${notes.join('; ')}`, delay: null });
+  renderLog();
 }
 
 /** The app will make the VAPID pair in the browser (G4); web-push wants a 65-byte raw public key and a 32-byte d. */
@@ -247,10 +262,14 @@ else showSubscription();
 showLog();
 vapidCheck();
 navigator.serviceWorker?.addEventListener('message', (e) => {
-  if (e.data === 'pushed') showLog();
-  if (e.data?.version) $('sw-version').textContent = `Service worker v${e.data.version} (page expects v3).`;
+  if (e.data?.pushed) addArrival(e.data.pushed);
+  if (e.data === 'pushed') showLog(); // sw v3 and earlier
+  if (e.data?.version) $('sw-version').textContent = `Service worker v${e.data.version} (page expects v4).`;
 });
 document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && showLog());
+if ('BroadcastChannel' in self) new BroadcastChannel('spike-log').onmessage = (e) => e.data?.pushed && addArrival(e.data.pushed);
+// Backstop if neither message arrives: ask the worker again every 5s while the page is visible.
+setInterval(() => document.visibilityState === 'visible' && showLog(), 5000);
 navigator.serviceWorker?.ready.then((reg) => {
   $('sw-version').textContent = 'Service worker v1 (no version reply). Tap "Update service worker".';
   reg.active?.postMessage('version');

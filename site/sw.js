@@ -1,7 +1,8 @@
 // Spike service worker: log every push first (iOS may stop the worker once the notification is
 // shown), then show it (iOS revokes the subscription if a push shows nothing), and open the
 // page on click.
-const VERSION = '3';
+const VERSION = '4';
+const channel = 'BroadcastChannel' in self ? new BroadcastChannel('spike-log') : null;
 importScripts('log-store.js');
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -44,7 +45,10 @@ self.addEventListener('push', (event) => {
         icon: 'icon-192.png',
         data: { url: data.url || './' },
       });
-      for (const client of await self.clients.matchAll({ type: 'window' })) client.postMessage('pushed');
+      // Tell every open page, controlled or not (iOS doesn't always count the open app as
+      // controlled), on two routes; the page de-duplicates.
+      channel?.postMessage({ pushed: entry });
+      for (const client of await self.clients.matchAll({ type: 'window', includeUncontrolled: true })) client.postMessage({ pushed: entry });
     })(),
   );
 });
